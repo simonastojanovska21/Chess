@@ -12,7 +12,7 @@ uniform vec3 ourColor;
 void main()
 {
         // ambient
-        float ambientStrength = 0.45;
+        float ambientStrength = 0.6;
         vec3 ambient = ambientStrength * lightColor;
         // diffuse
         vec3 norm = normalize(Normal);

@@ -140,3 +140,7 @@ std::vector<glm::vec3> Pawn::getPawnCoordinates() {
 
     return vertices;
 }
+
+std::vector<glm::vec2> Pawn::getPawnAvailableMoves(char chessBoard[8][8],glm::vec2 selectedSquare) {
+
+}

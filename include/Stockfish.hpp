@@ -10,12 +10,12 @@
 
 class Stockfish{
 private:
-
+    std::string moves;
 public:
-
     //Constructor
     Stockfish();
 
+    std::string getNextComputerMove();
 };
 
 #endif //OPENGLPRJ_STOCKFISH_HPP

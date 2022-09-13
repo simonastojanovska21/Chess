@@ -14,23 +14,20 @@
 #include "Knight.hpp"
 #include "Queen.hpp"
 #include "Rook.hpp"
+#include "Chess.hpp"
 
 const std::string program_name = ("Chess");
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-std::string exec(const char* cmd);
+
+
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 800;
 
-//If the value is true that the start color is black
-bool whiteTurn = true;
-glm::vec2 selectedSquare = glm::vec2(0,0);
-
 // lighting
-//glm::vec3 lightPos(1.0f, 0.3f, -1.5f);
 glm::vec3 lightPos(0.0f, -0.5f, -1.2f);
 
 //Colors
@@ -39,6 +36,17 @@ glm::vec3 brownColor = glm::vec3(0.302,0.173,0.149);
 glm::vec3 redColor =glm::vec3(1.0f,0.0f,0.0f);
 glm::vec3 blackColor = glm::vec3(0.0f,0.0f,0.0f);
 glm::vec3 whiteColor = glm::vec3(1.0f,1.0f,1.0f);
+glm::vec3 brightRed = glm::vec3(0.0f,1.0f,0.0f);
+
+Board* board = new Board();
+Pawn* pawn = new Pawn();
+Bishop* bishop = new Bishop();
+King* king = new King();
+Knight* knight = new Knight();
+Queen* queen = new Queen();
+Rook* rook = new Rook();
+Chess* chess = new Chess();
+
 
 int main() {
   // glfw: initialize and configure
@@ -92,26 +100,14 @@ int main() {
   Shader lightShader(shader_location + light_shader + std::string(".vert"),
                      shader_location + light_shader + std::string(".frag"));
 
-  Board* board = new Board();
   std::vector<glm::vec3> boardVertices = board->getBoardCoordinates();
   std::vector<glm::vec3> boardSquareVertices = board->getBoardSquareCoordinates();
 
-  Pawn* pawn = new Pawn();
   std::vector<glm::vec3> pawnVertices = pawn->getPawnCoordinates();
-
-  Bishop* bishop = new Bishop();
   std::vector<glm::vec3> bishopVertices = bishop->getBishopCoordinates();
-
-  King* king = new King();
   std::vector<glm::vec3> kingVertices = king->getKingCoordinates();
-
-  Knight* knight = new Knight();
   std::vector<glm::vec3> knightVertices = knight->getKnightCoordinates();
-
-  Queen* queen = new Queen();
   std::vector<glm::vec3> queenVertices = queen->getQueenCoordinates();
-
-  Rook* rook = new Rook();
   std::vector<glm::vec3> rookVertices = rook->getRookCoordinates();
 
   unsigned int VBOs[8], VAOs[8];
@@ -126,15 +122,6 @@ int main() {
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
-//
-//    unsigned int lightCubeVAO;
-//    glGenVertexArrays(1, &lightCubeVAO);
-//    glBindVertexArray(lightCubeVAO);
-//    glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
-//    // note that we update the lamp's position attribute's stride to reflect the updated buffer data
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-//    glEnableVertexAttribArray(0);
-
 
   //Buffers for chess square
   glBindVertexArray(VAOs[1]);
@@ -200,18 +187,8 @@ int main() {
   glEnableVertexAttribArray(1);
 
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  chess->GAME_MODE = chess->PLAYER_COMPUTER;
 
-  char chessBoard[8][8] = {{'R','N','B','Q','K','B','N','R'},
-                           {'P','P','P','P','P','P','P','P'},
-                           {'0','0','0','0','0','0','0','0'},
-                           {'0','0','0','0','0','0','0','0'},
-                           {'0','0','0','0','0','0','0','0'},
-                           {'0','0','0','0','0','0','0','0'},
-                           {'r','n','b','q','k','b','n','r'},
-                           {'p','p','p','p','p','p','p','p'}};
-
-//  bool ans = chessBoard[0][1] == 'n';
-//    std::cout<<ans;
   while (!glfwWindowShouldClose(window)) {
 
     // input
@@ -242,7 +219,6 @@ int main() {
     glDrawArrays(GL_TRIANGLES, 0, boardVertices.size()/2);
 
     //Drawing the squares on the board
-
     glBindVertexArray(VAOs[1]);
     glm::vec3 squarePositions= glm::vec3(0.0f,0.0f,0.0f);
     for(int i=0;i<8;i++){
@@ -253,8 +229,14 @@ int main() {
             model =glm::rotate(model, glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
             ourShader.setMat4("model", model);
 
-            if(i==selectedSquare.x && j==selectedSquare.y)
+            if(i==chess->selectedSquare.x && j==chess->selectedSquare.y)
                 ourShader.setVec3("ourColor", redColor);
+            else if(chess->availablePositions[i][j]){
+                glm::vec3 color = glm::vec3(0.0f,0.902f,0.0f);
+                if((i+j) % 2 == 0 )
+                    color = glm::vec3(0.0f,0.502f,0.0f);
+                ourShader.setVec3("ourColor", color);
+            }
             else if( (i+j) % 2 == 0 )
                 ourShader.setVec3("ourColor", blackColor);
             else
@@ -267,47 +249,45 @@ int main() {
         squarePositions.x = 0.0f;
     }
 
-
+    //Drawing the chess board figures
     squarePositions= glm::vec3(0.0f,0.0f,0.0f);
     for(int i=0;i<8;i++){
         for(int j=0;j<8;j++){
             model = glm::mat4(1.0f);
             model = glm::translate(model, squarePositions);
-            float angle = glm::radians(-40.0f);
-            model =glm::rotate(model, chessBoard[i][j] == 'K' ? angle : glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            model =glm::rotate(model,  glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
             ourShader.setMat4("model", model);
 
-            if(chessBoard[i][j] == 'P' || chessBoard[i][j] == 'p'){
+            if(chess->chessBoard[i][j] == 'P' || chess->chessBoard[i][j] == 'p'){
                 glBindVertexArray(VAOs[2]);
-                ourShader.setVec3("ourColor", chessBoard[i][j] == 'P' ? creamColor : brownColor );
+                ourShader.setVec3("ourColor", chess->chessBoard[i][j] == 'P' ? creamColor : brownColor );
                 glDrawArrays(GL_TRIANGLES,0, pawnVertices.size()/2);
             }
-            if(chessBoard[i][j] == 'B' || chessBoard[i][j] == 'b'){
+            if(chess->chessBoard[i][j] == 'B' || chess->chessBoard[i][j] == 'b'){
                 glBindVertexArray(VAOs[3]);
-                ourShader.setVec3("ourColor", chessBoard[i][j] == 'B' ? creamColor : brownColor );
+                ourShader.setVec3("ourColor", chess->chessBoard[i][j] == 'B' ? creamColor : brownColor );
                 glDrawArrays(GL_TRIANGLES,0, bishopVertices.size()/2);
             }
-            if(chessBoard[i][j] == 'K' || chessBoard[i][j] == 'k'){
+            if(chess->chessBoard[i][j] == 'K' || chess->chessBoard[i][j] == 'k'){
                 glBindVertexArray(VAOs[4]);
-                ourShader.setVec3("ourColor", chessBoard[i][j] == 'K' ? creamColor : brownColor );
+                ourShader.setVec3("ourColor", chess->chessBoard[i][j] == 'K' ? creamColor : brownColor );
                 glDrawArrays(GL_TRIANGLES,0, kingVertices.size()/2);
             }
-            if(chessBoard[i][j] == 'N' || chessBoard[i][j] == 'n'){
+            if(chess->chessBoard[i][j] == 'N' || chess->chessBoard[i][j] == 'n'){
                 glBindVertexArray(VAOs[5]);
-                ourShader.setVec3("ourColor", chessBoard[i][j] == 'N' ? creamColor : brownColor );
+                ourShader.setVec3("ourColor", chess->chessBoard[i][j] == 'N' ? creamColor : brownColor );
                 glDrawArrays(GL_TRIANGLES,0, knightVertices.size()/2);
             }
-            if(chessBoard[i][j] == 'Q' || chessBoard[i][j] == 'q'){
+            if(chess->chessBoard[i][j] == 'Q' || chess->chessBoard[i][j] == 'q'){
                 glBindVertexArray(VAOs[6]);
-                ourShader.setVec3("ourColor", chessBoard[i][j] == 'Q' ? creamColor : brownColor );
+                ourShader.setVec3("ourColor", chess->chessBoard[i][j] == 'Q' ? creamColor : brownColor );
                 glDrawArrays(GL_TRIANGLES,0, queenVertices.size()/2);
             }
-            if(chessBoard[i][j] == 'R' || chessBoard[i][j] == 'r'){
+            if(chess->chessBoard[i][j] == 'R' || chess->chessBoard[i][j] == 'r'){
                 glBindVertexArray(VAOs[7]);
-                ourShader.setVec3("ourColor", chessBoard[i][j] == 'R' ? creamColor : brownColor );
+                ourShader.setVec3("ourColor", chess->chessBoard[i][j] == 'R' ? creamColor : brownColor );
                 glDrawArrays(GL_TRIANGLES,0, rookVertices.size()/2);
             }
-
             squarePositions.x = squarePositions.x+0.2f;
         }
         squarePositions.y = squarePositions.y + 0.15f;
@@ -316,24 +296,6 @@ int main() {
     }
 
 
-//    glBindVertexArray(VAOs[2]);
-//    model = glm::mat4(1.0f);
-//    //model = glm::translate(model, squarePositions);
-//    model =glm::rotate(model, glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-//    //model = glm::scale(model, glm::vec3(1.2f));
-//    ourShader.setMat4("model", model);
-//    ourShader.setVec3("ourColor", glm::vec3(1.0f,0.0f,1.0f));
-//    glDrawArrays(GL_TRIANGLES,0, pawnVertices.size()/2);
-
-//    glBindVertexArray(VAOs[3]);
-//    model = glm::mat4(1.0f);
-//    //model = glm::translate(model, squarePositions);
-//    model =glm::rotate(model, glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-//    //model = glm::scale(model, glm::vec3(1.2f));
-//    ourShader.setMat4("model", model);
-//    ourShader.setVec3("ourColor", glm::vec3(1.0f,0.0f,1.0f));
-//    glDrawArrays(GL_TRIANGLES,0, bishopVertices.size()/2);
-
     lightShader.use();
     lightShader.setMat4("projection", projection);
     lightShader.setMat4("view", view);
@@ -341,9 +303,6 @@ int main() {
     model =glm::rotate(model, glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::translate(model, lightPos);
     lightShader.setMat4("model", model);
-
-    //glBindVertexArray(lightCubeVAO);
-    // glDrawArrays(GL_TRIANGLES, 0, 36);
 
     // -------------------------------------------------------------------------------
     glfwSwapBuffers(window);
@@ -371,26 +330,24 @@ void processInput(GLFWwindow *window) {
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
-    if(key == GLFW_KEY_R && action == GLFW_PRESS){
-        whiteTurn = false;
-        selectedSquare.x = 7.0f;
-        selectedSquare.y = 0.0f;
+    if(key == GLFW_KEY_SPACE && action == GLFW_PRESS){
+        chess->handleSpaceButton();
     }
     if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS){
-        if(selectedSquare.y < 8)
-            selectedSquare.y = selectedSquare.y + 1.0f;
+        if(chess->selectedSquare.y < 7.0f)
+            chess->selectedSquare.y = chess->selectedSquare.y + 1.0f;
     }
     if(key == GLFW_KEY_LEFT && action == GLFW_PRESS){
-        if(selectedSquare.y > 0)
-            selectedSquare.y = selectedSquare.y - 1.0f;
+        if(chess->selectedSquare.y > 0)
+            chess->selectedSquare.y = chess->selectedSquare.y - 1.0f;
     }
     if(key == GLFW_KEY_UP && action == GLFW_PRESS){
-        if(selectedSquare.x < 8)
-            selectedSquare.x = selectedSquare.x + 1.0f;
+        if(chess->selectedSquare.x < 7.0f)
+            chess->selectedSquare.x = chess->selectedSquare.x + 1.0f;
     }
     if(key == GLFW_KEY_DOWN && action == GLFW_PRESS){
-        if(selectedSquare.x > 0)
-            selectedSquare.x = selectedSquare.x -1.0f;
+        if(chess->selectedSquare.x > 0)
+            chess->selectedSquare.x = chess->selectedSquare.x -1.0f;
     }
 }
 
@@ -402,30 +359,3 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   // and height will be significantly larger than specified on retina displays.
   glViewport(0, 0, width, height);
 }
-
-// glfw: whenever the mouse moves, this callback is called
-// -------------------------------------------------------
-//void mouse_callback(GLFWwindow *window, double xposd, double yposd) {
-//  float xpos = static_cast<float>(xposd);
-//  float ypos = static_cast<float>(yposd);
-//  if (firstMouse) {
-//    lastX = xpos;
-//    lastY = ypos;
-//    firstMouse = false;
-//  }
-//
-//  float xoffset = xpos - lastX;
-//  float yoffset =
-//      lastY - ypos; // reversed since y-coordinates go from bottom to top
-//
-//  lastX = xpos;
-//  lastY = ypos;
-//
-//  camera.ProcessMouseMovement(xoffset, yoffset);
-//}
-
-// glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
-//void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
-//  camera.ProcessMouseScroll(static_cast<float>(yoffset));
-//}
