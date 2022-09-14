@@ -7,15 +7,22 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
+#include "glm/gtc/type_ptr.hpp"
 
 class Stockfish{
 private:
-    std::string moves;
+    std::string exec(const char* cmd);
 public:
+
     //Constructor
     Stockfish();
 
-    std::string getNextComputerMove();
+    std::string getNextComputerMove(std::string moves);
+
+    glm::vec2 convertUciFormatToChessBoardCoordinates(std::string position);
+
+    std::string getLegalMovesFromScript(std::string moves);
 };
 
 #endif //OPENGLPRJ_STOCKFISH_HPP

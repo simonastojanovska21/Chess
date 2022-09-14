@@ -28,429 +28,201 @@ void Chess::resetAvailablePositions(){
     }
 }
 
-void Chess::getWhitePawnAvailableMoves() {
+std::string Chess::getUciFormat(int x, int y) {
+    return uciFormat[x][y];
+}
+
+void Chess::updateAvailablePositions(std::string legalMoves, std::string start,int x, int y) {
+    std::string end;
+    end = getUciFormat(x, y);
+    if(legalMoves.find(start+end) != std::string::npos)
+        availablePositions[x][y] = true;
+}
+
+void Chess::getWhitePawnAvailableMoves(std::string legalMoves){
+    std::string start = getUciFormat(selectedSquare.x,selectedSquare.y);;
+    std::string end;
     //The first move of the pawn can be 2 squares forward
-    if(selectedSquare.x == 1 &&
-       getFigureAtBoard(selectedSquare.x+1, selectedSquare.y) == '0' &&
-       getFigureAtBoard(selectedSquare.x+2, selectedSquare.y) == '0' )
-        availablePositions[(int)selectedSquare.x + 2][(int)selectedSquare.y] = true;
+    updateAvailablePositions(legalMoves, start, selectedSquare.x + 2, selectedSquare.y);
 
     //By default, the pawn moves 1 square forward
-    if(getFigureAtBoard(selectedSquare.x+1, selectedSquare.y) == '0')
-        availablePositions[(int) selectedSquare.x + 1][(int) selectedSquare.y] = true;
+    updateAvailablePositions(legalMoves, start, selectedSquare.x + 1, selectedSquare.y);
 
     //The pawn can move diagonally to capture a piece of opposite color
-    if(checkValidIndex(selectedSquare.x+1) && checkValidIndex(selectedSquare.y-1) &&
-    std::islower(getFigureAtBoard(selectedSquare.x+1, selectedSquare.y-1)))
-        availablePositions[(int) selectedSquare.x + 1][(int) selectedSquare.y - 1] = true;
-    if(checkValidIndex(selectedSquare.x+1) && checkValidIndex(selectedSquare.y+1) &&
-    std::islower(getFigureAtBoard(selectedSquare.x+1, selectedSquare.y+1)))
-        availablePositions[(int) selectedSquare.x + 1][(int) selectedSquare.y + 1] = true;
+    updateAvailablePositions(legalMoves, start, selectedSquare.x + 1, selectedSquare.y -1);
+    updateAvailablePositions(legalMoves, start, selectedSquare.x + 1, selectedSquare.y -1);
 }
 
-void Chess::getBlackPawnAvailableMoves() {
-//The first move of the pawn can be 2 squares forward
-    if(selectedSquare.x == 6 &&
-       getFigureAtBoard(selectedSquare.x-1, selectedSquare.y) == '0' &&
-       getFigureAtBoard(selectedSquare.x-2, selectedSquare.y) == '0' )
-        availablePositions[(int) selectedSquare.x - 2][(int) selectedSquare.y] = true;
+void Chess::getBlackPawnAvailableMoves(std::string legalMoves) {
+    std::string start = getUciFormat(selectedSquare.x,selectedSquare.y);;
+    std::string end;
+    //The first move of the pawn can be 2 squares forward
+    updateAvailablePositions(legalMoves, start, selectedSquare.x - 2, selectedSquare.y);
 
     //By default, the pawn moves 1 square forward
-    if(getFigureAtBoard(selectedSquare.x-1, selectedSquare.y) == '0')
-        availablePositions[(int) selectedSquare.x - 1][(int) selectedSquare.y] = true;
+    updateAvailablePositions(legalMoves, start, selectedSquare.x - 1, selectedSquare.y);
 
     //The pawn can move diagonally to capture a piece of opposite color
-    if(checkValidIndex(selectedSquare.x-1) && checkValidIndex(selectedSquare.y-1) &&
-       std::isupper(getFigureAtBoard(selectedSquare.x-1, selectedSquare.y-1)))
-        availablePositions[(int) selectedSquare.x - 1][(int) selectedSquare.y - 1] = true;
-    if(checkValidIndex(selectedSquare.x-1) && checkValidIndex(selectedSquare.y+1) &&
-       std::isupper(getFigureAtBoard(selectedSquare.x-1, selectedSquare.y+1)))
-        availablePositions[(int) selectedSquare.x - 1][(int) selectedSquare.y + 1] = true;
+    updateAvailablePositions(legalMoves, start, selectedSquare.x - 1,  selectedSquare.y - 1);
+    updateAvailablePositions(legalMoves, start, selectedSquare.x - 1, selectedSquare.y + 1);
 }
 
-void Chess::getWhiteRookAvailableMoves() {
+void Chess::getRookAvailableMoves(std::string legalMoves){
     //Move forward until a figure is reached
+    std::string start = getUciFormat(selectedSquare.x,selectedSquare.y);;
+    std::string end;
     for(int i=(int)selectedSquare.x+1; i < 8;i++){
-        if(getFigureAtBoard( i,selectedSquare.y) == '0')
+        end = getUciFormat(i,selectedSquare.y);
+        if(legalMoves.find(start+end) != std::string::npos)
             availablePositions[i][(int) selectedSquare.y] = true;
-        else if(std::islower(getFigureAtBoard( i,selectedSquare.y))){
-            availablePositions[ i][(int)selectedSquare.y] = true;
-            break;
-        }
         else
             break;
     }
+
     //Move backwards until a figure is reached
     for(int i=(int)selectedSquare.x-1; i >= 0;i-- ){
-        if(getFigureAtBoard( i,selectedSquare.y) == '0')
+        end = getUciFormat(i,selectedSquare.y);
+        if(legalMoves.find(start+end) != std::string::npos)
             availablePositions[i][(int) selectedSquare.y] = true;
-        else if(std::islower(getFigureAtBoard( i,selectedSquare.y))){
-            availablePositions[ i][(int)selectedSquare.y] = true;
-            break;
-        }
         else
             break;
     }
+
     //Move to the left
     for(int i=(int)selectedSquare.y-1;i>=0;i--){
-        if(getFigureAtBoard(selectedSquare.x,i) == '0')
+        end = getUciFormat(selectedSquare.x, i);
+        if(legalMoves.find(start+end) != std::string::npos)
             availablePositions[(int) selectedSquare.x][i] = true;
-        else if(std::islower(getFigureAtBoard( selectedSquare.x,i))){
-            availablePositions[(int)selectedSquare.x][i] = true;
-            break;
-        }
         else
             break;
     }
+
     //Move to the right
     for(int i = (int)selectedSquare.y+1;i<8;i++){
-        if(getFigureAtBoard(selectedSquare.x,i) == '0')
+        end = getUciFormat(selectedSquare.x, i);
+        if(legalMoves.find(start+end) != std::string::npos)
             availablePositions[(int) selectedSquare.x][i] = true;
-        else if(std::islower(getFigureAtBoard( selectedSquare.x,i))){
-            availablePositions[(int)selectedSquare.x][i] = true;
-            break;
-        }
         else
             break;
     }
 }
 
-void Chess::getBlackRookAvailableMoves() {
-    //Move forward until a figure is reached
-    for(int i=(int)selectedSquare.x-1; i >= 0;i-- ){
-        std::cout<<"Forward"<<i<<std::endl;
-        if(getFigureAtBoard( i,selectedSquare.y) == '0')
-            availablePositions[ i][(int)selectedSquare.y] = true;
-        else if(std::isupper(getFigureAtBoard( i,selectedSquare.y))){
-            availablePositions[ i][(int)selectedSquare.y] = true;
-            break;
-        }
-        else
-            break;
-    }
-    //Move backwards until a figure is reached
-    for(int i=(int)selectedSquare.x+1; i < 8;i++){
-        if(getFigureAtBoard( i,selectedSquare.y) == '0')
-            availablePositions[i][(int)selectedSquare.y] = true;
-        else if(std::isupper(getFigureAtBoard( i,selectedSquare.y))){
-            availablePositions[ i][(int)selectedSquare.y] = true;
-            break;
-        }
-        else
-            break;
-    }
-    //Move to the left
-    for(int i=(int)selectedSquare.y-1;i>=0;i--){
-        if(getFigureAtBoard(selectedSquare.x,i) == '0')
-            availablePositions[(int)selectedSquare.x][i] = true;
-        else if(std::isupper(getFigureAtBoard( selectedSquare.x,i))){
-            availablePositions[(int)selectedSquare.x][i] = true;
-            break;
-        }
-        else
-            break;
-    }
-    //Move to the right
-    for(int i = (int)selectedSquare.y+1;i<8;i++){
-        if(getFigureAtBoard(selectedSquare.x,i) == '0')
-            availablePositions[(int)selectedSquare.x][i] = true;
-        else if(std::isupper(getFigureAtBoard( selectedSquare.x,i))){
-            availablePositions[(int)selectedSquare.x][i] = true;
-            break;
-        }
-        else
-            break;
-    }
-}
-
-void Chess::getWhiteBishopAvailableMoves() {
-    //Move forward left
+void Chess::getBishopAvailableMoves(std::string legalMoves) {
+    std::string start = getUciFormat(selectedSquare.x,selectedSquare.y);;
+    std::string end;
     int x = (int) selectedSquare.x + 1;
     int y = (int) selectedSquare.y - 1;
     for(int i=x,j=y; i<8 && j>=0;i++,j--){
-        if(getFigureAtBoard(i,j) == '0')
+        end = getUciFormat(i,j);
+        if(legalMoves.find(start+end) != std::string::npos)
             availablePositions[i][j] = true;
-        else if(std::islower(getFigureAtBoard( i,j))){
-            availablePositions[i][j] = true;
-            break;
-        }
         else
             break;
     }
+
     //Move forward right
     x = (int) selectedSquare.x + 1;
     y = (int) selectedSquare.y + 1;
     for(int i=x,j=y; i<8 && j<8;i++,j++){
-        if(getFigureAtBoard(i,j) == '0')
+        end = getUciFormat(i,j);
+        if(legalMoves.find(start+end) != std::string::npos)
             availablePositions[i][j] = true;
-        else if(std::islower(getFigureAtBoard( i,j))){
-            availablePositions[i][j] = true;
-            break;
-        }
         else
             break;
     }
+
     //Move backward left
     x = (int) selectedSquare.x - 1;
     y = (int) selectedSquare.y - 1;
     for(int i=x,j=y; i>=0 && j>=0;i--,j--){
-        if(getFigureAtBoard(i,j) == '0')
+        end = getUciFormat(i,j);
+        if(legalMoves.find(start+end) != std::string::npos)
             availablePositions[i][j] = true;
-        else if(std::islower(getFigureAtBoard( i,j))){
-            availablePositions[i][j] = true;
-            break;
-        }
         else
             break;
     }
+
     //Move backward right
     x = (int) selectedSquare.x - 1;
     y = (int) selectedSquare.y + 1;
     for(int i=x,j=y; i>=0 && j<8;i--,j++){
-        if(getFigureAtBoard(i,j) == '0')
+        end = getUciFormat(i,j);
+        if(legalMoves.find(start+end) != std::string::npos)
             availablePositions[i][j] = true;
-        else if(std::islower(getFigureAtBoard( i,j))){
-            availablePositions[i][j] = true;
-            break;
-        }
         else
             break;
     }
 }
 
-void Chess::getBlackBishopAvailableMoves() {
-    //Move backward left
-    int x = (int) selectedSquare.x + 1;
-    int y = (int) selectedSquare.y - 1;
-    for(int i=x,j=y; i<8 && j>=0;i++,j--){
-        if(getFigureAtBoard(i,j) == '0')
-            availablePositions[i][j] = true;
-        else if(std::isupper(getFigureAtBoard( i,j))){
-            availablePositions[i][j] = true;
-            break;
-        }
-        else
-            break;
-    }
-    //Move backward right
-    x = (int) selectedSquare.x + 1;
-    y = (int) selectedSquare.y + 1;
-    for(int i=x,j=y; i<8 && j<8;i++,j++){
-        if(getFigureAtBoard(i,j) == '0')
-            availablePositions[i][j] = true;
-        else if(std::isupper(getFigureAtBoard( i,j))){
-            availablePositions[i][j] = true;
-            break;
-        }
-        else
-            break;
-    }
-    //Move forward left
-    x = (int) selectedSquare.x - 1;
-    y = (int) selectedSquare.y - 1;
-    for(int i=x,j=y; i>=0 && j>=0;i--,j--){
-        if(getFigureAtBoard(i,j) == '0')
-            availablePositions[i][j] = true;
-        else if(std::isupper(getFigureAtBoard( i,j))){
-            availablePositions[i][j] = true;
-            break;
-        }
-        else
-            break;
-    }
-    //Move forward right
-    x = (int) selectedSquare.x - 1;
-    y = (int) selectedSquare.y + 1;
-    for(int i=x,j=y; i>=0 && j<8;i--,j++){
-        if(getFigureAtBoard(i,j) == '0')
-            availablePositions[i][j] = true;
-        else if(std::isupper(getFigureAtBoard( i,j))){
-            availablePositions[i][j] = true;
-            break;
-        }
-        else
-            break;
-    }
-}
+void Chess::getKingAvailableMoves(std::string legalMoves) {
+    std::string start = getUciFormat(selectedSquare.x,selectedSquare.y);
 
-void Chess::getWhiteKingAvailableMoves() {
     //Move left and right
-    if( checkValidIndex(selectedSquare.y-1) && !std::isupper(getFigureAtBoard(selectedSquare.x,selectedSquare.y-1)))
-        availablePositions[(int)selectedSquare.x][(int)selectedSquare.y-1] = true;
-    if( checkValidIndex(selectedSquare.y+1) && !std::isupper(getFigureAtBoard(selectedSquare.x,selectedSquare.y-1)))
-        availablePositions[(int)selectedSquare.x][(int)selectedSquare.y+1] = true;
+    if(checkValidIndex(selectedSquare.y-1))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x, selectedSquare.y-1);
+    if( checkValidIndex(selectedSquare.y+1))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x, selectedSquare.y+1);
 
     //Move up and down
-    if(checkValidIndex(selectedSquare.x+1) && !std::isupper(getFigureAtBoard(selectedSquare.x+1,selectedSquare.y)))
-        availablePositions[(int)selectedSquare.x+1][(int)selectedSquare.y] = true;
-    if(checkValidIndex(selectedSquare.x-1) && !std::isupper(getFigureAtBoard(selectedSquare.x-1,selectedSquare.y)))
-        availablePositions[(int)selectedSquare.x-1][(int)selectedSquare.y] = true;
-    //Move forward left and right
-    if(checkValidIndex(selectedSquare.x+1) &&checkValidIndex(selectedSquare.y-1)
-       && !std::isupper(getFigureAtBoard(selectedSquare.x+1,selectedSquare.y-1)))
-        availablePositions[(int)selectedSquare.x+1][(int)selectedSquare.y-1] = true;
-    if(checkValidIndex(selectedSquare.x+1) && checkValidIndex(selectedSquare.y+1)
-       && !std::isupper(getFigureAtBoard(selectedSquare.x+1,selectedSquare.y+1)))
-        availablePositions[(int)selectedSquare.x+1][(int)selectedSquare.y+1] = true;
-
-    //Move backward left and right
-    if(checkValidIndex(selectedSquare.x-1) &&checkValidIndex(selectedSquare.y-1)
-       && !std::isupper(getFigureAtBoard(selectedSquare.x-1,selectedSquare.y-1)))
-        availablePositions[(int)selectedSquare.x-1][(int)selectedSquare.y-1] = true;
-
-    if(checkValidIndex(selectedSquare.x-1) && checkValidIndex(selectedSquare.y+1)
-       && !std::isupper(getFigureAtBoard(selectedSquare.x-1,selectedSquare.y+1)))
-        availablePositions[(int)selectedSquare.x-1][(int)selectedSquare.y+1] = true;
-}
-
-void Chess::getBlackKingAvailableMoves() {
-    //Move left and right
-    if( checkValidIndex(selectedSquare.y-1) && !std::islower(getFigureAtBoard(selectedSquare.x,selectedSquare.y-1)))
-        availablePositions[(int)selectedSquare.x][(int)selectedSquare.y-1] = true;
-    if( checkValidIndex(selectedSquare.y+1) && !std::islower(getFigureAtBoard(selectedSquare.x,selectedSquare.y-1)))
-        availablePositions[(int)selectedSquare.x][(int)selectedSquare.y+1] = true;
-
-    //Move up and down
-    if(checkValidIndex(selectedSquare.x-1) && !std::islower(getFigureAtBoard(selectedSquare.x-1,selectedSquare.y)))
-        availablePositions[(int)selectedSquare.x-1][(int)selectedSquare.y] = true;
-    if(checkValidIndex(selectedSquare.x+1) && !std::islower(getFigureAtBoard(selectedSquare.x+1,selectedSquare.y)))
-        availablePositions[(int)selectedSquare.x+1][(int)selectedSquare.y] = true;
+    if(checkValidIndex(selectedSquare.x+1))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x+1, selectedSquare.y);
+    if(checkValidIndex(selectedSquare.x-1))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x-1, selectedSquare.y);
 
     //Move forward left and right
-    if(checkValidIndex(selectedSquare.x-1) &&checkValidIndex(selectedSquare.y-1)
-       && !std::islower(getFigureAtBoard(selectedSquare.x-1,selectedSquare.y-1)))
-        availablePositions[(int)selectedSquare.x-1][(int)selectedSquare.y-1] = true;
-    if(checkValidIndex(selectedSquare.x-1) && checkValidIndex(selectedSquare.y+1)
-       && !std::islower(getFigureAtBoard(selectedSquare.x-1,selectedSquare.y+1)))
-        availablePositions[(int)selectedSquare.x-1][(int)selectedSquare.y+1] = true;
+    if(checkValidIndex(selectedSquare.x+1) &&checkValidIndex(selectedSquare.y-1))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x+1, selectedSquare.y-1);
+    if(checkValidIndex(selectedSquare.x+1) && checkValidIndex(selectedSquare.y+1))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x+1, selectedSquare.y+1);
 
     //Move backward left and right
-    if(checkValidIndex(selectedSquare.x+1) &&checkValidIndex(selectedSquare.y-1)
-       && !std::islower(getFigureAtBoard(selectedSquare.x+1,selectedSquare.y-1)))
-        availablePositions[(int)selectedSquare.x+1][(int)selectedSquare.y-1] = true;
-    if(checkValidIndex(selectedSquare.x+1) && checkValidIndex(selectedSquare.y+1)
-       && !std::islower(getFigureAtBoard(selectedSquare.x+1,selectedSquare.y+1)))
-        availablePositions[(int)selectedSquare.x+1][(int)selectedSquare.y+1] = true;
+    if(checkValidIndex(selectedSquare.x-1) &&checkValidIndex(selectedSquare.y-1))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x-1, selectedSquare.y-1);
+    if(checkValidIndex(selectedSquare.x-1) && checkValidIndex(selectedSquare.y+1))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x-1, selectedSquare.y+1);
 }
 
-void Chess::getWhiteKnightAvailableMoves() {
+void Chess::getKnightAvailableMoves(std::string legalMoves) {
+    std::string start = getUciFormat(selectedSquare.x,selectedSquare.y);
     //Move forward left in L shape
-    if(checkValidIndex(selectedSquare.x+1) && checkValidIndex(selectedSquare.y-2) &&
-       !std::isupper(getFigureAtBoard(selectedSquare.x+1, selectedSquare.y-2)))
-        availablePositions[(int)selectedSquare.x+1][(int)selectedSquare.y-2] = true;
-    if(checkValidIndex(selectedSquare.x+2) && checkValidIndex(selectedSquare.y-1) &&
-       !std::isupper(getFigureAtBoard(selectedSquare.x+2, selectedSquare.y-1)))
-        availablePositions[(int)selectedSquare.x+2][(int)selectedSquare.y-1] = true;
+    if(checkValidIndex(selectedSquare.x+1) && checkValidIndex(selectedSquare.y-2))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x+1, selectedSquare.y-2);
+    if(checkValidIndex(selectedSquare.x+2) && checkValidIndex(selectedSquare.y-1))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x+2, selectedSquare.y-1);
 
     //Move forward right in L shape
-    if(checkValidIndex(selectedSquare.x+1) && checkValidIndex(selectedSquare.y+2) &&
-       !std::isupper(getFigureAtBoard(selectedSquare.x+1, selectedSquare.y+2)))
-        availablePositions[(int)selectedSquare.x+1][(int)selectedSquare.y+2] = true;
-    if(checkValidIndex(selectedSquare.x+2) && checkValidIndex(selectedSquare.y+1) &&
-       !std::isupper(getFigureAtBoard(selectedSquare.x+2, selectedSquare.y+1)))
-        availablePositions[(int)selectedSquare.x+2][(int)selectedSquare.y+1] = true;
+    if(checkValidIndex(selectedSquare.x+1) && checkValidIndex(selectedSquare.y+2))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x+1, selectedSquare.y+2);
+    if(checkValidIndex(selectedSquare.x+2) && checkValidIndex(selectedSquare.y+1))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x+2, selectedSquare.y+1);
 
     //Move backwards left in L shape
-    if(checkValidIndex(selectedSquare.x-1) && checkValidIndex(selectedSquare.y-2) &&
-       !std::isupper(getFigureAtBoard(selectedSquare.x-1, selectedSquare.y-2)))
-        availablePositions[(int)selectedSquare.x-1][(int)selectedSquare.y-2] = true;
-    if(checkValidIndex(selectedSquare.x-2) && checkValidIndex(selectedSquare.y-1) &&
-       !std::isupper(getFigureAtBoard(selectedSquare.x-2, selectedSquare.y-1)))
-        availablePositions[(int)selectedSquare.x-2][(int)selectedSquare.y-1] = true;
+    if(checkValidIndex(selectedSquare.x-1) && checkValidIndex(selectedSquare.y-2))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x-1, selectedSquare.y-2);
+    if(checkValidIndex(selectedSquare.x-2) && checkValidIndex(selectedSquare.y-1))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x-2, selectedSquare.y-1);
 
     //Move backwards right in L shape
-    if(checkValidIndex(selectedSquare.x-1) && checkValidIndex(selectedSquare.y+2) &&
-       !std::isupper(getFigureAtBoard(selectedSquare.x-1, selectedSquare.y+2)))
-        availablePositions[(int)selectedSquare.x-1][(int)selectedSquare.y+2] = true;
-    if(checkValidIndex(selectedSquare.x-2) && checkValidIndex(selectedSquare.y+1) &&
-       !std::isupper(getFigureAtBoard(selectedSquare.x-2, selectedSquare.y+1)))
-        availablePositions[(int)selectedSquare.x-2][(int)selectedSquare.y+1] = true;
+    if(checkValidIndex(selectedSquare.x-1) && checkValidIndex(selectedSquare.y+2))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x-1, selectedSquare.y+2);
+    if(checkValidIndex(selectedSquare.x-2) && checkValidIndex(selectedSquare.y+1))
+        updateAvailablePositions(legalMoves, start, selectedSquare.x-2, selectedSquare.y+1);
 }
 
-void Chess::getBlackKnightAvailableMoves() {
-    //Move backwards left in L shape
-    if(checkValidIndex(selectedSquare.x+1) && checkValidIndex(selectedSquare.y-2) &&
-       !std::islower(getFigureAtBoard(selectedSquare.x+1, selectedSquare.y-2)))
-        availablePositions[(int)selectedSquare.x+1][(int)selectedSquare.y-2] = true;
-    if(checkValidIndex(selectedSquare.x+2) && checkValidIndex(selectedSquare.y-1) &&
-       !std::islower(getFigureAtBoard(selectedSquare.x+2, selectedSquare.y-1)))
-        availablePositions[(int)selectedSquare.x+2][(int)selectedSquare.y-1] = true;
-
-    //Move backwards right in L shape
-    if(checkValidIndex(selectedSquare.x+1) && checkValidIndex(selectedSquare.y+2) &&
-       !std::islower(getFigureAtBoard(selectedSquare.x+1, selectedSquare.y+2)))
-        availablePositions[(int)selectedSquare.x+1][(int)selectedSquare.y+2] = true;
-    if(checkValidIndex(selectedSquare.x+2) && checkValidIndex(selectedSquare.y+1) &&
-       !std::islower(getFigureAtBoard(selectedSquare.x+2, selectedSquare.y+1)))
-        availablePositions[(int)selectedSquare.x+2][(int)selectedSquare.y+1] = true;
-
-    //Move forward left in L shape
-    if(checkValidIndex(selectedSquare.x-1) && checkValidIndex(selectedSquare.y-2) &&
-       !std::islower(getFigureAtBoard(selectedSquare.x-1, selectedSquare.y-2)))
-        availablePositions[(int)selectedSquare.x-1][(int)selectedSquare.y-2] = true;
-    if(checkValidIndex(selectedSquare.x-2) && checkValidIndex(selectedSquare.y-1) &&
-       !std::islower(getFigureAtBoard(selectedSquare.x-2, selectedSquare.y-1)))
-        availablePositions[(int)selectedSquare.x-2][(int)selectedSquare.y-1] = true;
-
-    //Move forward right in L shape
-    if(checkValidIndex(selectedSquare.x-1) && checkValidIndex(selectedSquare.y+2) &&
-       !std::islower(getFigureAtBoard(selectedSquare.x-1, selectedSquare.y+2)))
-        availablePositions[(int)selectedSquare.x-1][(int)selectedSquare.y+2] = true;
-    if(checkValidIndex(selectedSquare.x-2) && checkValidIndex(selectedSquare.y+1) &&
-       !std::islower(getFigureAtBoard(selectedSquare.x-2, selectedSquare.y+1)))
-        availablePositions[(int)selectedSquare.x-2][(int)selectedSquare.y+1] = true;
-}
-
-void Chess::getWhiteQueenAvailableMoves() {
-    getWhiteBishopAvailableMoves();
-    getWhiteRookAvailableMoves();
-}
-
-void Chess::getBlackQueenAvailableMoves() {
-    getBlackBishopAvailableMoves();
-    getBlackRookAvailableMoves();
-}
-
-void Chess::getAvailableMovesForWhite(){
-    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'P'){
-        getWhitePawnAvailableMoves();
-    }
-    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'R'){
-        getWhiteRookAvailableMoves();
-    }
-    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'B'){
-        getWhiteBishopAvailableMoves();
-    }
-    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'K'){
-        getWhiteKingAvailableMoves();
-    }
-    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'N'){
-        getWhiteKnightAvailableMoves();
-    }
-    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'Q'){
-        getWhiteQueenAvailableMoves();
-    }
-}
-
-void Chess::getAvailableMovesForBlack() {
-    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'p'){
-        getBlackPawnAvailableMoves();
-    }
-    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'r'){
-        getBlackRookAvailableMoves();
-    }
-    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'b'){
-        getBlackBishopAvailableMoves();
-    }
-    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'k'){
-        getBlackKingAvailableMoves();
-    }
-    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'n'){
-        getBlackKnightAvailableMoves();
-    }
-    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'q'){
-        getBlackQueenAvailableMoves();
-    }
+void Chess::getLegalMoves() {
+    std::string legalMoves = stockfish ->getLegalMovesFromScript(moves);
+    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'P')
+        getWhitePawnAvailableMoves(legalMoves);
+    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'p')
+        getBlackPawnAvailableMoves(legalMoves);
+    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'R' || getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'r')
+        getRookAvailableMoves(legalMoves);
+    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'B' || getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'b')
+        getBishopAvailableMoves(legalMoves);
+    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'K' || getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'k')
+        getKingAvailableMoves(legalMoves);
+    if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'N' || getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'n')
+        getKnightAvailableMoves(legalMoves);
 }
 
 bool Chess::hasNextMove() {
@@ -466,20 +238,30 @@ bool Chess::hasNextMove() {
 void Chess::makeMove() {
     chessBoard[(int)selectedSquare.x][(int)selectedSquare.y] = getFigureAtBoard(selectedFigure.x, selectedFigure.y);
     chessBoard[(int)selectedFigure.x][(int)selectedFigure.y] = '0';
-    selectedFigure = glm::vec2(-1,-1);
     resetAvailablePositions();
 }
 
+void Chess::makeComputerMove() {
+
+}
+
 void Chess::handleSpaceButton() {
+
     if(GAME_MODE == TWO_PLAYERS){
         if(NEXT_TURN == WHITE){
             if(selectedFigure.x ==-1 && getFigureAtBoard(selectedSquare.x, selectedSquare.y) != '0'){
-               getAvailableMovesForWhite();
+                getLegalMoves();
                if(hasNextMove())
                    selectedFigure = selectedSquare;
             }
             else if(selectedFigure.x != -1 && availablePositions[(int)selectedSquare.x][(int) selectedSquare.y]){
                 makeMove();
+
+                std::string start = uciFormat[(int)selectedFigure.x][(int)selectedFigure.y];
+                std::string end = uciFormat[(int)selectedSquare.x][(int)selectedSquare.y];
+                moves.append(start + end + ",");
+
+                selectedFigure = glm::vec2(-1,-1);
                 selectedSquare = glm::vec2 (7,0);
                 NEXT_TURN = BLACK;
                 return;
@@ -491,12 +273,18 @@ void Chess::handleSpaceButton() {
         }
         if(NEXT_TURN == BLACK){
             if(selectedFigure.x ==-1 && getFigureAtBoard(selectedSquare.x, selectedSquare.y) != '0'){
-                getAvailableMovesForBlack();
+                getLegalMoves();
                 if(hasNextMove())
                     selectedFigure = selectedSquare;
             }
             else if(selectedFigure.x != -1 && availablePositions[(int)selectedSquare.x][(int) selectedSquare.y]){
                 makeMove();
+
+                std::string start = uciFormat[(int)selectedFigure.x][(int)selectedFigure.y];
+                std::string end = uciFormat[(int)selectedSquare.x][(int)selectedSquare.y];
+                moves.append(start + end + ",");
+
+                selectedFigure = glm::vec2(-1,-1);
                 selectedSquare = glm::vec2 (0,0);
                 NEXT_TURN = WHITE;
             }
@@ -508,17 +296,24 @@ void Chess::handleSpaceButton() {
     }
 
     if(GAME_MODE == PLAYER_COMPUTER){
+
         if(NEXT_TURN == WHITE){
             if(selectedFigure.x ==-1 && getFigureAtBoard(selectedSquare.x, selectedSquare.y) != '0'){
-                getAvailableMovesForWhite();
+                //getAvailableMovesForWhite();
+                getLegalMoves();
                 if(hasNextMove())
                     selectedFigure = selectedSquare;
             }
             else if(selectedFigure.x != -1 && availablePositions[(int)selectedSquare.x][(int) selectedSquare.y]){
                 makeMove();
+
+                std::string start = uciFormat[(int)selectedFigure.x][(int)selectedFigure.y];
+                std::string end = uciFormat[(int)selectedSquare.x][(int)selectedSquare.y];
+                moves.append(start + end + ",");
+
+                selectedFigure = glm::vec2(-1,-1);
                 selectedSquare = glm::vec2 (7,0);
                 NEXT_TURN = COMPUTER;
-                return;
             }
             else{
                 selectedFigure = glm::vec2(-1,-1);
@@ -526,7 +321,16 @@ void Chess::handleSpaceButton() {
             }
         }
         if(NEXT_TURN == COMPUTER){
-            std::cout<<"comp"<<std::endl;
+            std::string computerMove = stockfish->getNextComputerMove(moves);
+            moves.append(computerMove.substr(0,4)+",");
+
+            selectedFigure = stockfish->convertUciFormatToChessBoardCoordinates(computerMove.substr(0,2));
+            selectedSquare = stockfish->convertUciFormatToChessBoardCoordinates(computerMove.substr(2,4));
+            makeMove();
+            selectedFigure = glm::vec2(-1,-1);
+            selectedSquare = glm::vec2 (0,0);
+            NEXT_TURN = WHITE;
+            return;
         }
     }
 }

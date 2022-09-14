@@ -15,22 +15,18 @@ private:
     char getFigureAtBoard(int x, int y);
     bool checkValidIndex(int index);
     void resetAvailablePositions();
-    void getWhitePawnAvailableMoves();
-    void getBlackPawnAvailableMoves();
-    void getWhiteRookAvailableMoves();
-    void getBlackRookAvailableMoves();
-    void getWhiteBishopAvailableMoves();
-    void getBlackBishopAvailableMoves();
-    void getWhiteKingAvailableMoves();
-    void getBlackKingAvailableMoves();
-    void getWhiteKnightAvailableMoves();
-    void getBlackKnightAvailableMoves();
-    void getWhiteQueenAvailableMoves();
-    void getBlackQueenAvailableMoves();
-    void getAvailableMovesForWhite();
-    void getAvailableMovesForBlack();
+    std::string getUciFormat(int x, int y);
+    void getLegalMoves();
+    void updateAvailablePositions(std::string legalMoves, std::string start, int x, int y);
+    void getWhitePawnAvailableMoves(std::string legalMoves);
+    void getBlackPawnAvailableMoves(std::string legalMoves);
+    void getRookAvailableMoves(std::string legalMoves);
+    void getBishopAvailableMoves(std::string legalMoves);
+    void getKingAvailableMoves(std::string legalMoves);
+    void getKnightAvailableMoves(std::string legalMoves);
     bool hasNextMove();
     void makeMove();
+    void makeComputerMove();
 public:
     Chess();
     /*
@@ -51,6 +47,15 @@ public:
                              {'0','0','0','0','0','0','0','0'},
                              {'p','p','p','p','p','p','p','p'},
                              {'r','n','b','q','k','b','n','r'}};
+
+    std::string uciFormat[8][8] = { {"a1","b1","c1","d1","e1","f1","g1","h1"},
+                                    {"a2","b2","c2","d2","e2","f2","g2","h2"},
+                                    {"a3","b3","c3","d3","e3","f3","g3","h3"},
+                                    {"a4","b4","c4","d4","e4","f4","g4","h4"},
+                                    {"a5","b5","c5","d5","e5","f5","g5","h5"},
+                                    {"a6","b6","c6","d6","e6","f6","g6","h6"},
+                                    {"a7","b7","c7","d7","e7","f7","g7","h7"},
+                                    {"a8","b8","c8","d8","e8","f8","g8","h8"}};
     //Matrix for available position for moving the chess figure
     bool availablePositions[8][8]={};
 
@@ -60,8 +65,8 @@ public:
     //Vector representing the selected figure from the board. If the value is -1,-1 than there is not selected piece
     glm::vec2 selectedFigure = glm::vec2(-1,-1);
 
-    //Vector representing the new location of the figure. If the value is -1, -1 than the move location is not selected
-    glm::vec2 moveFigure = glm::vec2 (-1,-1);
+    //String representing the moves made by the player and computer, used for communication with Stockfish engine.
+    std::string moves = "";
 
     const std::string TWO_PLAYERS = "TWO PLAYERS";
     const std::string PLAYER_COMPUTER = "PLAYER COMPUTER";
