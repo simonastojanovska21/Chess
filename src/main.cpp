@@ -24,7 +24,7 @@ bool loadOBJ(const char * path,std::vector < glm::vec3 > & out_vertices);
 
 // settings
 const unsigned int SCR_WIDTH = 1000;
-const unsigned int SCR_HEIGHT = 1000;
+const unsigned int SCR_HEIGHT = 800;
 
 // lighting
 glm::vec3 lightPos(0.0f, -0.5f, -1.2f);
@@ -33,6 +33,7 @@ glm::vec3 lightPos(0.0f, -0.5f, -1.2f);
 glm::vec3 creamColor = glm::vec3(0.875,0.725,0.584);
 glm::vec3 brownColor = glm::vec3(0.302,0.173,0.149);
 glm::vec3 redColor =glm::vec3(1.0f,0.0f,0.0f);
+glm::vec3 orangeColor = glm::vec3(1.0f,0.4f,0.0f);
 glm::vec3 blackColor = glm::vec3(0.0f,0.0f,0.0f);
 glm::vec3 whiteColor = glm::vec3(1.0f,1.0f,1.0f);
 
@@ -130,11 +131,20 @@ int main() {
   loadOBJ("../res/text/space.obj",space);
 
   std::vector<glm::vec3> checkmate;
-  loadOBJ("../res/text/two_players.obj",checkmate);
+  loadOBJ("../res/text/checkmate.obj",checkmate);
 
-  unsigned int VBOs[14], VAOs[14];
-  glGenVertexArrays(14, VAOs);
-  glGenBuffers(14, VBOs);
+  std::vector<glm::vec3> checkmateSquare;
+  checkmateSquare.push_back(glm::vec3(-0.8f,0.03f, -0.8f));
+  checkmateSquare.push_back(glm::vec3(0.8f,0.03f,-0.8f));
+  checkmateSquare.push_back(glm::vec3(0.8f,0.03f,0.8f));
+
+  checkmateSquare.push_back(glm::vec3(0.8f,0.03f,0.8f));
+  checkmateSquare.push_back(glm::vec3(-0.8f,0.03f,0.8f));
+  checkmateSquare.push_back(glm::vec3(-0.8f,0.03f, -0.8f));
+
+  unsigned int VBOs[15], VAOs[15];
+  glGenVertexArrays(15, VAOs);
+  glGenBuffers(15, VBOs);
 
   //Buffers for chess board
   glBindVertexArray(VAOs[0]);
@@ -250,6 +260,13 @@ int main() {
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);	// Vertex attributes stay the same
   glEnableVertexAttribArray(0);
 
+  //Buffers for square
+  glBindVertexArray(VAOs[14]);
+  glBindBuffer(GL_ARRAY_BUFFER, VBOs[14]);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(checkmateSquare)*checkmateSquare.size(), &checkmateSquare[0], GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);	// Vertex attributes stay the same
+  glEnableVertexAttribArray(0);
+
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   chess->GAME_MODE = chess->TWO_PLAYERS;
 
@@ -265,19 +282,20 @@ int main() {
     glClearColor(0.22f,0.0f,0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+      textShader.use();
+      glm::mat4 projection = glm::perspective(glm::radians(48.0f), SCR_WIDTH * 1.0f / SCR_HEIGHT, 0.1f, 100.0f);
+      textShader.setMat4("projection", projection);
+      glm::mat4 view = glm::mat4(1.0f);
+      view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+      textShader.setMat4("view", view);
+
+      textShader.setVec4("ourColor",glm::vec4(1.0f,1.0f,1.0f,1.0f));
+
+      glm::mat4 model = glm::mat4(1.0f);
+      model =glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+      textShader.setMat4("model", model);
+
     if(displayHome){
-        textShader.use();
-        glm::mat4 projection = glm::perspective(glm::radians(48.0f), SCR_WIDTH * 1.0f / SCR_HEIGHT, 0.1f, 100.0f);
-        textShader.setMat4("projection", projection);
-        glm::mat4 view = glm::mat4(1.0f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-        textShader.setMat4("view", view);
-
-        textShader.setVec4("ourColor",glm::vec4(1.0f,1.0f,1.0f,1.0f));
-
-        glm::mat4 model = glm::mat4(1.0f);
-        model =glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        textShader.setMat4("model", model);
 
         glBindVertexArray(VAOs[8]);
         glDrawArrays(GL_TRIANGLES, 0, two_players.size());
@@ -293,10 +311,17 @@ int main() {
 
         glBindVertexArray(VAOs[12]);
         glDrawArrays(GL_TRIANGLES, 0, space.size());
-
     }
+    else if(chess->checkMate){
+        glBindVertexArray(VAOs[13]);
+        glDrawArrays(GL_TRIANGLES,0, checkmate.size());
 
+        glBindVertexArray(VAOs[14]);
+        textShader.setVec4("ourColor",glm::vec4(0.22f,0.0f,0.0f, 1.0f));
+        glDrawArrays(GL_TRIANGLES,0, checkmateSquare.size());
+    }
     else{
+
         ourShader.use();
         ourShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
         ourShader.setVec3("lightPos", lightPos);
@@ -327,6 +352,8 @@ int main() {
                 ourShader.setMat4("model", model);
 
                 if(i==chess->selectedSquare.x && j==chess->selectedSquare.y)
+                    ourShader.setVec3("ourColor", orangeColor);
+                else if( chess->checkKing != '0' && chess->chessBoard[i][j] == chess->checkKing )
                     ourShader.setVec3("ourColor", redColor);
                 else if(chess->availablePositions[i][j]){
                     glm::vec3 color = glm::vec3(0.0f,0.902f,0.0f);
@@ -409,8 +436,8 @@ int main() {
 
     // optional: de-allocate all resources once they've outlived their purpose:
   // ------------------------------------------------------------------------
-  glDeleteVertexArrays(14, VAOs);
-  glDeleteBuffers(14, VBOs);
+  glDeleteVertexArrays(15, VAOs);
+  glDeleteBuffers(15, VBOs);
 
   glfwTerminate();
   return 0;

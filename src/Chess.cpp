@@ -210,7 +210,19 @@ void Chess::getKnightAvailableMoves(std::string legalMoves) {
 }
 
 void Chess::getLegalMoves() {
-    std::string legalMoves = stockfish ->getLegalMovesFromScript(moves);
+    std::string result = stockfish ->getLegalMovesFromScript(moves);
+    std::string legalMoves = result.substr(0,result.find('\n'));
+    std::string status = result.substr(result.find('\n')+1);
+    std::string checkStatus = status.substr(0,status.find(' '));
+    std::string checkMateStatus = status.substr(status.find(' ')+1);
+
+    if(checkMateStatus == "True")
+        checkMate = true;
+    if(checkStatus == "True"){
+        NEXT_TURN == WHITE ? checkKing='K' : checkKing='k';
+    } else
+        checkKing='0';
+
     if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'P')
         getWhitePawnAvailableMoves(legalMoves);
     if(getFigureAtBoard(selectedSquare.x, selectedSquare.y) == 'p')
@@ -247,6 +259,8 @@ void Chess::resetBoard() {
     selectedSquare = glm::vec2(0,0);
     selectedFigure = glm::vec2(-1,-1);
     moves = "";
+    checkKing='0';
+    checkMate = false;
     for(int i=0;i<8;i++){
         for(int j=0;j<8;j++){
             chessBoard[i][j] = defaultBoard[i][j];
@@ -306,6 +320,17 @@ void Chess::handleSpaceButton() {
     if(NEXT_TURN == COMPUTER){
         std::string computerMove = stockfish->getNextComputerMove(moves);
         moves.append(computerMove.substr(0,4)+",");
+
+        std::string result = stockfish ->getLegalMovesFromScript(moves);
+        std::string status = result.substr(result.find('\n')+1);
+        std::string checkStatus = status.substr(0,status.find(' '));
+        std::string checkMateStatus = status.substr(status.find(' ')+1);
+        if(checkMateStatus == "True")
+            checkMate = true;
+        if(checkStatus == "True")
+            checkKing='K';
+        else
+            checkKing='0';
 
         selectedFigure = stockfish->convertUciFormatToChessBoardCoordinates(computerMove.substr(0,2));
         selectedSquare = stockfish->convertUciFormatToChessBoardCoordinates(computerMove.substr(2,4));

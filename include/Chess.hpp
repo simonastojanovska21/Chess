@@ -77,6 +77,10 @@ public:
     //String representing the moves made by the player and computer, used for communication with Stockfish engine.
     std::string moves = "";
 
+    bool checkMate = false;
+
+    char checkKing='0';
+
     const std::string TWO_PLAYERS = "TWO PLAYERS";
     const std::string PLAYER_COMPUTER = "PLAYER COMPUTER";
     std::string GAME_MODE = "";
