@@ -157,7 +157,7 @@
 			"language" : "C",
 			"sourceIndexes" : 
 			[
-				30
+				32
 			]
 		}
 	],
@@ -244,29 +244,31 @@
 				23,
 				24,
 				25,
-				26
+				26,
+				27,
+				28
 			]
 		},
 		{
 			"name" : "textures",
 			"sourceIndexes" : 
 			[
-				27
+				29
 			]
 		},
 		{
 			"name" : "",
 			"sourceIndexes" : 
 			[
-				28,
-				29
+				30,
+				31
 			]
 		},
 		{
 			"name" : "vendors",
 			"sourceIndexes" : 
 			[
-				30
+				32
 			]
 		}
 	],
@@ -417,6 +419,16 @@
 		{
 			"backtrace" : 1,
 			"path" : "res/shaders/shader.vert",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"path" : "res/shaders/text.frag",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"path" : "res/shaders/text.vert",
 			"sourceGroupIndex" : 2
 		},
 		{

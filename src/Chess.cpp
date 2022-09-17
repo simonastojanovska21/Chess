@@ -40,7 +40,7 @@ void Chess::updateAvailablePositions(std::string legalMoves, std::string start,i
 }
 
 void Chess::getWhitePawnAvailableMoves(std::string legalMoves){
-    std::string start = getUciFormat(selectedSquare.x,selectedSquare.y);;
+    std::string start = getUciFormat(selectedSquare.x,selectedSquare.y);
     std::string end;
     //The first move of the pawn can be 2 squares forward
     updateAvailablePositions(legalMoves, start, selectedSquare.x + 2, selectedSquare.y);
@@ -108,7 +108,7 @@ void Chess::getRookAvailableMoves(std::string legalMoves){
 }
 
 void Chess::getBishopAvailableMoves(std::string legalMoves) {
-    std::string start = getUciFormat(selectedSquare.x,selectedSquare.y);;
+    std::string start = getUciFormat(selectedSquare.x,selectedSquare.y);
     std::string end;
     int x = (int) selectedSquare.x + 1;
     int y = (int) selectedSquare.y - 1;
@@ -241,98 +241,77 @@ void Chess::makeMove() {
     resetAvailablePositions();
 }
 
-void Chess::makeComputerMove() {
-
+void Chess::resetBoard() {
+    NEXT_TURN = WHITE;
+    resetAvailablePositions();
+    selectedSquare = glm::vec2(0,0);
+    selectedFigure = glm::vec2(-1,-1);
+    moves = "";
+    for(int i=0;i<8;i++){
+        for(int j=0;j<8;j++){
+            chessBoard[i][j] = defaultBoard[i][j];
+        }
+    }
 }
 
 void Chess::handleSpaceButton() {
 
-    if(GAME_MODE == TWO_PLAYERS){
-        if(NEXT_TURN == WHITE){
-            if(selectedFigure.x ==-1 && getFigureAtBoard(selectedSquare.x, selectedSquare.y) != '0'){
-                getLegalMoves();
-               if(hasNextMove())
-                   selectedFigure = selectedSquare;
-            }
-            else if(selectedFigure.x != -1 && availablePositions[(int)selectedSquare.x][(int) selectedSquare.y]){
-                makeMove();
-
-                std::string start = uciFormat[(int)selectedFigure.x][(int)selectedFigure.y];
-                std::string end = uciFormat[(int)selectedSquare.x][(int)selectedSquare.y];
-                moves.append(start + end + ",");
-
-                selectedFigure = glm::vec2(-1,-1);
-                selectedSquare = glm::vec2 (7,0);
-                NEXT_TURN = BLACK;
-                return;
-            }
-            else{
-                selectedFigure = glm::vec2(-1,-1);
-                resetAvailablePositions();
-            }
+    if(NEXT_TURN == WHITE){
+        if(selectedFigure.x ==-1 && getFigureAtBoard(selectedSquare.x, selectedSquare.y) != '0'){
+            getLegalMoves();
+            if(hasNextMove())
+                selectedFigure = selectedSquare;
         }
-        if(NEXT_TURN == BLACK){
-            if(selectedFigure.x ==-1 && getFigureAtBoard(selectedSquare.x, selectedSquare.y) != '0'){
-                getLegalMoves();
-                if(hasNextMove())
-                    selectedFigure = selectedSquare;
-            }
-            else if(selectedFigure.x != -1 && availablePositions[(int)selectedSquare.x][(int) selectedSquare.y]){
-                makeMove();
+        else if(selectedFigure.x != -1 && availablePositions[(int)selectedSquare.x][(int) selectedSquare.y]){
+            makeMove();
 
-                std::string start = uciFormat[(int)selectedFigure.x][(int)selectedFigure.y];
-                std::string end = uciFormat[(int)selectedSquare.x][(int)selectedSquare.y];
-                moves.append(start + end + ",");
+            std::string start = uciFormat[(int)selectedFigure.x][(int)selectedFigure.y];
+            std::string end = uciFormat[(int)selectedSquare.x][(int)selectedSquare.y];
+            moves.append(start + end + ",");
 
-                selectedFigure = glm::vec2(-1,-1);
-                selectedSquare = glm::vec2 (0,0);
-                NEXT_TURN = WHITE;
-            }
-            else{
-                selectedFigure = glm::vec2(-1,-1);
-                resetAvailablePositions();
-            }
+            selectedFigure = glm::vec2(-1,-1);
+            selectedSquare = glm::vec2 (7,0);
+            if(GAME_MODE == TWO_PLAYERS)
+                NEXT_TURN = BLACK;
+            else
+                NEXT_TURN = COMPUTER;
+        }
+        else{
+            selectedFigure = glm::vec2(-1,-1);
+            resetAvailablePositions();
         }
     }
-
-    if(GAME_MODE == PLAYER_COMPUTER){
-
-        if(NEXT_TURN == WHITE){
-            if(selectedFigure.x ==-1 && getFigureAtBoard(selectedSquare.x, selectedSquare.y) != '0'){
-                //getAvailableMovesForWhite();
-                getLegalMoves();
-                if(hasNextMove())
-                    selectedFigure = selectedSquare;
-            }
-            else if(selectedFigure.x != -1 && availablePositions[(int)selectedSquare.x][(int) selectedSquare.y]){
-                makeMove();
-
-                std::string start = uciFormat[(int)selectedFigure.x][(int)selectedFigure.y];
-                std::string end = uciFormat[(int)selectedSquare.x][(int)selectedSquare.y];
-                moves.append(start + end + ",");
-
-                selectedFigure = glm::vec2(-1,-1);
-                selectedSquare = glm::vec2 (7,0);
-                NEXT_TURN = COMPUTER;
-            }
-            else{
-                selectedFigure = glm::vec2(-1,-1);
-                resetAvailablePositions();
-            }
+    else if(NEXT_TURN == BLACK){
+        if(selectedFigure.x ==-1 && getFigureAtBoard(selectedSquare.x, selectedSquare.y) != '0'){
+            getLegalMoves();
+            if(hasNextMove())
+                selectedFigure = selectedSquare;
         }
-        if(NEXT_TURN == COMPUTER){
-            std::string computerMove = stockfish->getNextComputerMove(moves);
-            moves.append(computerMove.substr(0,4)+",");
-
-            selectedFigure = stockfish->convertUciFormatToChessBoardCoordinates(computerMove.substr(0,2));
-            selectedSquare = stockfish->convertUciFormatToChessBoardCoordinates(computerMove.substr(2,4));
+        else if(selectedFigure.x != -1 && availablePositions[(int)selectedSquare.x][(int) selectedSquare.y]){
             makeMove();
+
+            std::string start = uciFormat[(int)selectedFigure.x][(int)selectedFigure.y];
+            std::string end = uciFormat[(int)selectedSquare.x][(int)selectedSquare.y];
+            moves.append(start + end + ",");
+
             selectedFigure = glm::vec2(-1,-1);
             selectedSquare = glm::vec2 (0,0);
             NEXT_TURN = WHITE;
-            return;
+        }
+        else{
+            selectedFigure = glm::vec2(-1,-1);
+            resetAvailablePositions();
         }
     }
+    if(NEXT_TURN == COMPUTER){
+        std::string computerMove = stockfish->getNextComputerMove(moves);
+        moves.append(computerMove.substr(0,4)+",");
+
+        selectedFigure = stockfish->convertUciFormatToChessBoardCoordinates(computerMove.substr(0,2));
+        selectedSquare = stockfish->convertUciFormatToChessBoardCoordinates(computerMove.substr(2,4));
+        makeMove();
+        selectedFigure = glm::vec2(-1,-1);
+        selectedSquare = glm::vec2 (0,0);
+        NEXT_TURN = WHITE;
+    }
 }
-
-

@@ -12,3 +12,4 @@ moves = ""
 for i in range(len(legal_moves)):
     moves += str(legal_moves[i]) + ","
 print(moves)
+print(board.is_check(), end="")

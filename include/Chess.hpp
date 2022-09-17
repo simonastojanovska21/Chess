@@ -26,7 +26,6 @@ private:
     void getKnightAvailableMoves(std::string legalMoves);
     bool hasNextMove();
     void makeMove();
-    void makeComputerMove();
 public:
     Chess();
     /*
@@ -37,9 +36,19 @@ public:
      */
     void handleSpaceButton();
 
+    void resetBoard();
 
     //Matrix for the chess board
     char chessBoard[8][8] = {{'R','N','B','Q','K','B','N','R'},
+                             {'P','P','P','P','P','P','P','P'},
+                             {'0','0','0','0','0','0','0','0'},
+                             {'0','0','0','0','0','0','0','0'},
+                             {'0','0','0','0','0','0','0','0'},
+                             {'0','0','0','0','0','0','0','0'},
+                             {'p','p','p','p','p','p','p','p'},
+                             {'r','n','b','q','k','b','n','r'}};
+
+    char defaultBoard[8][8] = {{'R','N','B','Q','K','B','N','R'},
                              {'P','P','P','P','P','P','P','P'},
                              {'0','0','0','0','0','0','0','0'},
                              {'0','0','0','0','0','0','0','0'},
