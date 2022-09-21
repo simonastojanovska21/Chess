@@ -58,7 +58,7 @@ add_definitions(-DGLFW_INCLUDE_NONE
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
                                ${PROJECT_SHADERS} ${PROJECT_TEXTURES} ${PROJECT_CONFIGS}
-                               ${VENDORS_SOURCES} src/Stockfish.cpp include/Stockfish.hpp include/Board.hpp src/Board.cpp include/Pawn.hpp src/Pawn.cpp src/Helper.cpp include/Rook.hpp src/Rook.cpp include/Bishop.hpp src/Bishop.cpp include/Knight.hpp src/Knight.cpp include/King.hpp src/King.cpp include/Queen.hpp src/Queen.cpp include/Chess.hpp src/Chess.cpp)
+                               ${VENDORS_SOURCES} src/Stockfish.cpp include/Stockfish.hpp include/Board.hpp src/Board.cpp include/Pawn.hpp src/Pawn.cpp src/Helper.cpp include/Rook.hpp src/Rook.cpp include/Bishop.hpp src/Bishop.cpp include/Knight.hpp src/Knight.cpp include/King.hpp src/King.cpp include/Queen.hpp src/Queen.cpp include/Chess.hpp src/Chess.cpp src/ChessOld.cpp)
 target_link_libraries(${PROJECT_NAME}
 		      glfw
                       ${GLFW_LIBRARIES} ${GLAD_LIBRARIES}

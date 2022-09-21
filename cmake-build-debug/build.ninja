@@ -73,6 +73,14 @@ build CMakeFiles/OpenGLPrj.dir/src/Chess.cpp.obj: CXX_COMPILER__OpenGLPrj_Debug 
   OBJECT_DIR = CMakeFiles\OpenGLPrj.dir
   OBJECT_FILE_DIR = CMakeFiles\OpenGLPrj.dir\src
 
+build CMakeFiles/OpenGLPrj.dir/src/ChessOld.cpp.obj: CXX_COMPILER__OpenGLPrj_Debug D$:/GitHub/Chess/src/ChessOld.cpp || cmake_object_order_depends_target_OpenGLPrj
+  DEFINES = -DGLFW_INCLUDE_NONE -DPROJECT_SOURCE_DIR=\"D:/GitHub/Chess\"
+  DEP_FILE = CMakeFiles\OpenGLPrj.dir\src\ChessOld.cpp.obj.d
+  FLAGS = -Wall -Wextra -Wpedantic -std=c++11 -g
+  INCLUDES = -ID:/GitHub/Chess/include -ID:/GitHub/Chess/vendor/glad/include -ID:/GitHub/Chess/vendor/glfw/include -ID:/GitHub/Chess/vendor/glm -ID:/GitHub/Chess/vendor/stb
+  OBJECT_DIR = CMakeFiles\OpenGLPrj.dir
+  OBJECT_FILE_DIR = CMakeFiles\OpenGLPrj.dir\src
+
 build CMakeFiles/OpenGLPrj.dir/src/Helper.cpp.obj: CXX_COMPILER__OpenGLPrj_Debug D$:/GitHub/Chess/src/Helper.cpp || cmake_object_order_depends_target_OpenGLPrj
   DEFINES = -DGLFW_INCLUDE_NONE -DPROJECT_SOURCE_DIR=\"D:/GitHub/Chess\"
   DEP_FILE = CMakeFiles\OpenGLPrj.dir\src\Helper.cpp.obj.d
@@ -161,7 +169,7 @@ build CMakeFiles/OpenGLPrj.dir/vendor/glad/src/glad.c.obj: C_COMPILER__OpenGLPrj
 #############################################
 # Link the executable OpenGLPrj\bin\OpenGLPrj.exe
 
-build OpenGLPrj/bin/OpenGLPrj.exe: CXX_EXECUTABLE_LINKER__OpenGLPrj_Debug CMakeFiles/OpenGLPrj.dir/src/Bishop.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Board.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Chess.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Helper.cpp.obj CMakeFiles/OpenGLPrj.dir/src/King.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Knight.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Pawn.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Queen.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Rook.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Shader.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Stockfish.cpp.obj CMakeFiles/OpenGLPrj.dir/src/main.cpp.obj CMakeFiles/OpenGLPrj.dir/vendor/glad/src/glad.c.obj | vendor/glfw/src/libglfw3.a || vendor/glfw/src/libglfw3.a
+build OpenGLPrj/bin/OpenGLPrj.exe: CXX_EXECUTABLE_LINKER__OpenGLPrj_Debug CMakeFiles/OpenGLPrj.dir/src/Bishop.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Board.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Chess.cpp.obj CMakeFiles/OpenGLPrj.dir/src/ChessOld.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Helper.cpp.obj CMakeFiles/OpenGLPrj.dir/src/King.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Knight.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Pawn.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Queen.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Rook.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Shader.cpp.obj CMakeFiles/OpenGLPrj.dir/src/Stockfish.cpp.obj CMakeFiles/OpenGLPrj.dir/src/main.cpp.obj CMakeFiles/OpenGLPrj.dir/vendor/glad/src/glad.c.obj | vendor/glfw/src/libglfw3.a || vendor/glfw/src/libglfw3.a
   FLAGS = -Wall -Wextra -Wpedantic -std=c++11 -g
   LINK_LIBRARIES = vendor/glfw/src/libglfw3.a  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\OpenGLPrj.dir

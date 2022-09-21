@@ -17,13 +17,13 @@ private:
     void resetAvailablePositions();
     std::string getUciFormat(int x, int y);
     void getLegalMoves();
-    void updateAvailablePositions(std::string legalMoves, std::string start, int x, int y);
-    void getWhitePawnAvailableMoves(std::string legalMoves);
-    void getBlackPawnAvailableMoves(std::string legalMoves);
-    void getRookAvailableMoves(std::string legalMoves);
-    void getBishopAvailableMoves(std::string legalMoves);
-    void getKingAvailableMoves(std::string legalMoves);
-    void getKnightAvailableMoves(std::string legalMoves);
+//    void updateAvailablePositions(std::string legalMoves, std::string start, int x, int y);
+//    void getWhitePawnAvailableMoves(std::string legalMoves);
+//    void getBlackPawnAvailableMoves(std::string legalMoves);
+//    void getRookAvailableMoves(std::string legalMoves);
+//    void getBishopAvailableMoves(std::string legalMoves);
+//    void getKingAvailableMoves(std::string legalMoves);
+//    void getKnightAvailableMoves(std::string legalMoves);
     bool hasNextMove();
     void makeMove();
 public:
